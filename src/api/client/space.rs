@@ -121,7 +121,9 @@ where
 					.map(|(key, val)| (key, val.collect()))
 					.collect();
 
-				if !populate {
+				if populate {
+					rooms.push(summary_to_chunk(summary.clone()));
+				} else {
 					children = children
 						.iter()
 						.rev()
@@ -144,10 +146,8 @@ where
 						.collect();
 				}
 
-				if populate {
-					rooms.push(summary_to_chunk(summary.clone()));
-				} else if queue.is_empty() && children.is_empty() {
-					return Err!(Request(InvalidParam("Room IDs in token were not found.")));
+				if queue.is_empty() && children.is_empty() {
+					break;
 				}
 
 				parents.insert(current_room.clone());
@@ -179,7 +179,7 @@ where
 			(next_short_room_ids.iter().ne(short_room_ids) && !next_short_room_ids.is_empty())
 				.then_some(PaginationToken {
 					short_room_ids: next_short_room_ids,
-					limit: max_depth.try_into().ok()?,
+					limit: limit.try_into().ok()?,
 					max_depth: max_depth.try_into().ok()?,
 					suggested_only,
 				})
